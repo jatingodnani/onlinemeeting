@@ -6,6 +6,8 @@ First, run the development server:
 
 ```bash
 npm run dev
+peerjs --port 3001
+http://localhost:3000/api/socket
 # or
 yarn dev
 # or
