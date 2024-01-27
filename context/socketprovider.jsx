@@ -6,10 +6,11 @@ const Socketcontext = ({children}) => {
     useEffect(()=>{
 const connection=io();
 setsocket(connection);
+
  },[])
 
     socket?.on("connection-error",async(err)=>{
-console.log(err);
+
 await fetch("/api/socket")
     })
     return (

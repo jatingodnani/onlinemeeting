@@ -8,8 +8,13 @@ const SocketHandler = (req, res) => {
     const io = new Server(res.socket.server)
     res.socket.server.io = io
    io.on("connection",(socket)=>{
-    console.log("connection established",socket.id)
-   })
+
+    socket?.on('join-room',(roomid,id)=>{
+      console.log(`a new user joined with roomid${roomid}, and peer id ${id}`)
+      socket.join(roomid);
+      socket.broadcast.to(roomid).emit("user-connected",id)
+})
+   });
   }
   res.end()
 }
