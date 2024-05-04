@@ -60,6 +60,6 @@ else{
   <Button className="w-full bg-red-500 text-white" onClick={createRoom}>Create a new Room</Button>
   </CardFooter>
 </Card>
-  
+
   );
 }

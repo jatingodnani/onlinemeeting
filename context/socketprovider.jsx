@@ -9,7 +9,7 @@ setsocket(connection);
 
  },[])
 
-    socket?.on("connection-error",async(err)=>{
+     socket?.on("connection-error",async(err)=>{
 
 await fetch("/api/socket")
     })

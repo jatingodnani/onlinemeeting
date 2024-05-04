@@ -5,12 +5,14 @@ import useMediaStream from "@/hooks/useMediaStream";
 import Player from "@/components/ui/compo/Player";
 import { Key } from "lucide-react";
 import Userplayer from "@/hooks/userplayer";
+import Bottom from "@/components/ui/compo/system";
+import { cloneDeep } from "lodash";
 
 const Room = () => {
   const socket = useContext(Cont);
   const { mypeer, peerid } = usePeer();
-  const { allstream, setallstream } =
-    Userplayer();
+  const { allstream, setallstream, highligted,nonhightlighted } =
+    Userplayer(peerid);
 
   const { stream } = useMediaStream();
   useEffect(() => {
@@ -23,8 +25,8 @@ const Room = () => {
           ...prev,
           [id]: {
             url:incomingstream,
-            muted: false,
-            playing: false,
+            muted: true,
+            playing: true,
           },
         }));
       });
@@ -34,7 +36,14 @@ const Room = () => {
       socket.off("user-connected", handleconnected);
     };
   }, [socket, mypeer, stream]);
-
+const toogleaudio=()=>{
+  console.log("clicked")
+  setallstream((prev)=>{
+   const copy=cloneDeep(prev);
+   copy[peerid].muted=!copy[peerid].muted
+   return {...copy}
+  })
+}
   useEffect(() => {
     if (!mypeer || !stream) return;
     mypeer.on("call", (call) => {
@@ -47,8 +56,8 @@ const Room = () => {
           ...prev,
           [callid]: {
             url: stream,
-            muted: false,
-            playing: false,
+            muted: true,
+            playing: true,
           },
         }));
       });
@@ -62,32 +71,40 @@ const Room = () => {
       ...prev,
       [peerid]: {
         url: stream,
-        muted: false,
-        playing: false,
+        muted: true,
+        playing: true,
       },
     }));
   }, [peerid,stream]);
 
 console.log(allstream)
   return (
-    <div>
-      
-        {Object.keys(allstream).map((playerId) => {
-console.log(playerId)
-          const { url, muted, playing } = allstream[playerId];
+    <>
+    <div className="absolute w-8/12 left-0 right-0 mx-auto top-20 bottom-50"
+     style={{ height: 'calc(100vh - 20px - 100px)' }}>
+      {
+        highligted && <Player isActive={true} stream={highligted?.url} playing={true} muted={true} />
+      }
+    </div>
+    <div className="absolute flex flex-col overflow-y-auto w-100"
+     style={{ height: 'calc(100vh - 20px)', right: '20px', top: '20px' }}>
+  {Object.keys(nonhightlighted).map((playerId) => {
+
+          const { url, muted, playing } = nonhightlighted[playerId];
           
           return (
             <Player
               key={playerId}
               stream={url}
-              muted={muted}
+              muted={false}
               playing={playing}
-            
+              isActive={false}
             />
           );
         })}
       </div>
-  
+      <Bottom muted={true} playing={true} toogleaudio={toogleaudio} />
+      </>
   );
 };
 export default Room;
