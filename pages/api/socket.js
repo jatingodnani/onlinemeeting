@@ -9,23 +9,42 @@ const SocketHandler = (req, res) => {
     });
     return;
   }
-  console.log("[SOCKET INITIALIZING]");
+  console.log("[SOCKET INITIALIZING 🟡]");
   const io = new Server({
     path: "/api/socket",
     addTrailingSlash: false,
     cors: { origin: "*" },
   }).listen(SOCKET_PORT);
+
+  // Connection
   io.on("connection", (socket) => {
     console.log("[CONNECTION]");
+
+    // Join-room
     socket?.on("join-room", (roomid, id) => {
       console.log("[JOIN-ROOM]");
       socket.join(roomid);
       socket.broadcast.to(roomid).emit("user-connected", id);
     });
-    socket.on("disconnect", async () => {
+
+    // Update User
+    socket.on("update-user", (id, roomid, status) => {
+      console.log("[UPDATE-USER]");
+      socket.broadcast.to(roomid).emit("update-other-user", id, status);
+    });
+    // Update User
+    socket.on("leave-chat", (id, roomid) => {
+      console.log("[Leave-chat]");
+      socket.broadcast.to(roomid).emit("left-chat", id);
+    });
+
+    // Disconnection
+    socket.on("disconnect", () => {
       console.log("[DISCONNECT]");
     });
   });
+
+  console.log("[SOCKET STARTED 👍]");
   res.socket.server.io = io;
   res.status(201).json({
     success: true,
