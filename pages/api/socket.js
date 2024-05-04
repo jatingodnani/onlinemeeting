@@ -1,22 +1,37 @@
-import { Server } from 'socket.io'
-
+import { Server } from "socket.io";
+const SOCKET_PORT = 3001;
 const SocketHandler = (req, res) => {
   if (res.socket.server.io) {
-    console.log('Socket is already running')
-  } else {
-    
-    const io = new Server(res.socket.server)
-    res.socket.server.io = io
-   io.on("connection",(socket)=>{
-
-    socket?.on('join-room',(roomid,id)=>{
-      console.log(`a new user joined with roomid${roomid}, and peer id ${id}`)
-      socket.join(roomid);
-      socket.broadcast.to(roomid).emit("user-connected",id)
-})
-   });
+    res.status(200).json({
+      success: true,
+      message: "Socket is already running",
+      socket: `:${SOCKET_PORT}`,
+    });
+    return;
   }
-  res.end()
-}
+  console.log("[SOCKET INITIALIZING]");
+  const io = new Server({
+    path: "/api/socket",
+    addTrailingSlash: false,
+    cors: { origin: "*" },
+  }).listen(SOCKET_PORT);
+  io.on("connection", (socket) => {
+    console.log("[CONNECTION]");
+    socket?.on("join-room", (roomid, id) => {
+      console.log("[JOIN-ROOM]");
+      socket.join(roomid);
+      socket.broadcast.to(roomid).emit("user-connected", id);
+    });
+    socket.on("disconnect", async () => {
+      console.log("[DISCONNECT]");
+    });
+  });
+  res.socket.server.io = io;
+  res.status(201).json({
+    success: true,
+    message: "Socket is started",
+    socket: `:${SOCKET_PORT}`,
+  });
+};
 
-export default SocketHandler
+export default SocketHandler;

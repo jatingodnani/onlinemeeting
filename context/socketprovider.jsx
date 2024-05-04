@@ -1,23 +1,27 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
- export const Cont=createContext(null)
-const Socketcontext = ({children}) => {
-    const [socket,setsocket]=useState(null);
-    useEffect(()=>{
-const connection=io();
-setsocket(connection);
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { io } from "socket.io-client";
+const SOCKET_PORT = 3001;
+export const SocketContext = createContext(null);
+const SocketProvider = ({ children }) => {
+  const [socket, setsocket] = useState(null);
+  useEffect(() => {
+    const connection = io(`:${SOCKET_PORT}`, {
+      path: "/api/socket",
+      addTrailingSlash: false,
+    });
+    setsocket(connection);
+  }, []);
+  socket?.on("connect", () => {
+    console.log("[socket initialized]");
+  });
 
- },[])
+  socket?.on("connect_error", async (err) => {
+    console.log(`connect_error due to ${err.message}`);
+    await fetch("/api/socket");
+  });
+  return (
+    <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
+  );
+};
 
-     socket?.on("connection-error",async(err)=>{
-
-await fetch("/api/socket")
-    })
-    return (
-       <Cont.Provider value={socket}>
-            {children}
-       </Cont.Provider>
-    );
-}
-
-export default Socketcontext;
+export default SocketProvider;
