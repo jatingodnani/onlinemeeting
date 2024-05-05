@@ -30,6 +30,7 @@ const SocketHandler = (req, res) => {
 
   // Connection
   io.on("connection", (socket) => {
+  
     console.log("[CONNECTION]");
 
     // Join-room
