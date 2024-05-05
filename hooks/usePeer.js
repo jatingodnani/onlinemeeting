@@ -1,18 +1,17 @@
 import { SocketContext } from "@/context/socketprovider";
 import { useRouter } from "next/router";
+import useEffectStrict from "./useEffectStrict";
 
 const { useState, useEffect, useRef, useContext } = require("react");
 
 const usePeer = () => {
   const [peerHandler, setPeerHandler] = useState(null);
   const [peerId, setPeerId] = useState("");
-  const ispeerref = useRef(false);
   const socket = useContext(SocketContext);
   const roomid = useRouter().query.roomid;
 
-  useEffect(() => {
-    if (ispeerref.current || !roomid || !socket) return;
-    ispeerref.current = true;
+  useEffectStrict(() => {
+    if (!roomid || !socket) return;
     (async function ispeer() {
       const peerHandler = new (await import("peerjs")).default();
       setPeerHandler(peerHandler);
@@ -22,6 +21,13 @@ const usePeer = () => {
         socket?.emit("join-room", roomid, id);
       });
     })();
+    return () => {
+      if (socket) {
+        socket.emit("leave-chat");
+        console.log("[PEER DISCONNECTED]");
+      }
+      if (peerHandler) peerHandler.destroy();
+    };
   }, [roomid, socket]);
 
   return {

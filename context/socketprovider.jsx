@@ -1,17 +1,16 @@
-import React, { createContext, useEffect, useState } from "react";
+import useEffectStrict from "@/hooks/useEffectStrict";
+import React, { createContext, useState } from "react";
 import { io } from "socket.io-client";
-const SOCKET_PORT = 3001;
 export const SocketContext = createContext(null);
 
 const SocketProvider = ({ children }) => {
   const [socket, setsocket] = useState(null);
-  useEffect(() => {
-    const connection = io(`:${SOCKET_PORT}`, {
-      path: "/api/socket",
-      addTrailingSlash: false,
-    });
+
+  useEffectStrict(() => {
+    const connection = io();
     setsocket(connection);
-  }, []);
+  });
+
   socket?.on("connect", () => {
     console.log("[socket initialized]");
   });
@@ -20,6 +19,7 @@ const SocketProvider = ({ children }) => {
     console.log(`connect_error due to ${err.message}`);
     await fetch("/api/socket");
   });
+
   return (
     <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
   );
