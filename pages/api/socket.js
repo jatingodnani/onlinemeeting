@@ -16,7 +16,7 @@ const SocketHandler = (req, res) => {
     cors: { origin: "*" },
   }).listen(SOCKET_PORT);
   io.on("connection", (socket) => {
-    console.log("[CONNECTION]");
+  
     socket?.on("join-room", (roomid, id) => {
       console.log("[JOIN-ROOM]");
       socket.join(roomid);
