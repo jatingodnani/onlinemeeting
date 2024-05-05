@@ -18,20 +18,22 @@ import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const router = useRouter();
-  const [roomnum, setrootid] = useState();
+
+  const [roomId, setRoomId] = useState("");
 
   const createRoom = () => {
-    const roomid = uuidv4();
-    router.push(`/${roomid}`);
+    const newRoomId = uuidv4();
+    router.push(`/${newRoomId}`);
   };
 
   const joinRoom = () => {
-    if (roomnum) {
-      router.push(`/${roomnum}`);
+    if (roomId) {
+      router.push(`/${roomId}`);
     } else {
       alert("Please enter room-id");
     }
   };
+
   return (
     <Card className="w-[30%] p-3 mt-[15%] ml-[10%]">
       <CardHeader>
@@ -43,9 +45,11 @@ export default function Home() {
           <Input
             type="email"
             id="email"
-            value={roomnum}
+            value={roomId}
             placeholder="Id"
-            onChange={(e) => setrootid(e.target.value)}
+            onChange={(e) => {
+              setRoomId(e.target.value);
+            }}
           />
           <Button className="w-full bg-blue-400 " onClick={joinRoom}>
             Join room

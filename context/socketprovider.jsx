@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 const SOCKET_PORT = 3001;
 export const SocketContext = createContext(null);
+
 const SocketProvider = ({ children }) => {
   const [socket, setsocket] = useState(null);
   useEffect(() => {
