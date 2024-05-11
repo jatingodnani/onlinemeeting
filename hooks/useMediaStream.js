@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import useEffectStrict from "./useEffectStrict";
 
 function useMediaStream() {
   const [myStream, setMyStream] = useState(null);
-  const isStreamSet = useRef(false);
-  useEffect(() => {
-    if (isStreamSet.current) return;
-    isStreamSet.current = true;
+  useEffectStrict(() => {
     (async function initstream() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -19,6 +17,10 @@ function useMediaStream() {
         console.log(err);
       }
     })();
+    return () => {
+      myStream && myStream.getTracks().forEach((track) => track.stop());
+      setMyStream(null);
+    };
   }, []);
 
   return { stream: myStream && myStream };

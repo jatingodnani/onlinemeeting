@@ -1,5 +1,6 @@
 import { cloneDeep } from "lodash";
 import { useEffect, useState } from "react";
+import useEffectStrict from "./useEffectStrict";
 const useStreamsInfo = (id) => {
   const [allStreamsInfo, setAllStreamsInfo] = useState({});
   const cloneAllStreamsInfo = cloneDeep(allStreamsInfo);
@@ -7,8 +8,8 @@ const useStreamsInfo = (id) => {
   delete cloneAllStreamsInfo[id];
   const otherStreamsInfo = cloneAllStreamsInfo;
 
-  useEffect(() => {
-    console.log(allStreamsInfo);
+  useEffectStrict(() => {
+    console.log("Streams Update", allStreamsInfo);
   }, [allStreamsInfo]);
 
   return { myStreamInfo, otherStreamsInfo, allStreamsInfo, setAllStreamsInfo };

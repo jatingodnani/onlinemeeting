@@ -1,133 +1,64 @@
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState } from "react";
 import { SocketContext } from "@/context/socketprovider";
 import usePeer from "@/hooks/usePeer";
 import useMediaStream from "@/hooks/useMediaStream";
 import Player from "@/components/ui/compo/Player";
-import { ArrowLeft, Key, Router } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import useStreamsInfo from "@/hooks/useStreamsInfo";
 import Bottom from "@/components/ui/compo/system";
-import { cloneDeep } from "lodash";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import useEffectStrict from "@/hooks/useEffectStrict";
+import useEventUserConnnected from "@/hooks/events/useEventUserConnnected";
+import useEventPeerCall from "@/hooks/events/useEventPeerCall";
+import useEventUpdateOtherUser from "@/hooks/events/useEventUpdateOtherUser";
+import useEventLeftChat from "@/hooks/events/useEventLeftChat";
 
 const Room = () => {
   const router = useRouter();
   const { roomid } = router.query;
-  const socket = useContext(SocketContext);
-  const { peerHandler, peerId } = usePeer();
-  const { setAllStreamsInfo, myStreamInfo, otherStreamsInfo } =
-    useStreamsInfo(peerId);
-  const { stream } = useMediaStream();
   const [status, setStatus] = useState({
     muted: true,
     playing: true,
   });
 
-  // [New Connection] -> Calling them
-  useEffect(() => {
+  // Hooks
+  const socket = useContext(SocketContext);
+  const { peerHandler, peerId } = usePeer();
+  const { setAllStreamsInfo, myStreamInfo, otherStreamsInfo } =
+    useStreamsInfo(peerId);
+  const { stream } = useMediaStream();
+
+  // INCOMING EVENTS
+  useEventUserConnnected(peerHandler, stream, setAllStreamsInfo, status);
+  useEventPeerCall(peerHandler, stream, setAllStreamsInfo);
+  useEventUpdateOtherUser(setAllStreamsInfo, status);
+  useEventLeftChat(setAllStreamsInfo, peerId);
+
+  // OUTGOING EVENTS
+  const handleSelfDisconnect = () => {
+    if (!socket || !peerId) return;
+    socket.emit("leave-chat");
+    router.push("/");
+  };
+  useEffectStrict(() => {
     if (!socket) return;
-    function handleUserConnection(id) {
-      const call = peerHandler.call(id, stream, {
-        metadata: status,
-      });
-      call.on("stream", (incomingStreamUrl) => {
-        console.log(id);
-        setAllStreamsInfo((prev) => ({
-          ...prev,
-          [id]: {
-            url: incomingStreamUrl,
-            muted: true,
-            playing: true,
-          },
-        }));
-      });
-    }
-    socket.on("user-connected", handleUserConnection);
-    return () => {
-      socket.off("user-connected", handleUserConnection);
-    };
-  }, [socket, peerHandler, stream]);
+    socket.emit("update-user", peerId, roomid, status);
+  }, [status, socket]);
 
-  // [Someone called me] -> answering them
-  useEffect(() => {
-    if (!peerHandler || !stream) return;
-    peerHandler.on("call", (call) => {
-      const { peer: callid, metadata } = call;
-      console.log(metadata);
-      call.answer(stream, { metadata: { joshi: "kartik" } });
-      call.on("stream", () => {
-        console.log(callid);
-        setAllStreamsInfo((prev) => ({
-          ...prev,
-          [callid]: {
-            url: stream,
-            muted: metadata?.muted ?? false,
-            playing: metadata?.playing ?? false,
-          },
-        }));
-      });
-    });
-  }, [stream, peerHandler]);
-
-  // Updating my info [incase it changes]
-  useEffect(() => {
+  // Other Events
+  useEffectStrict(() => {
     if (!stream || !peerId) return;
+
     console.log(`setting my stream ${peerId}`);
     setAllStreamsInfo((prev) => ({
       ...prev,
       [peerId]: {
         url: stream,
-        muted: true,
-        playing: true,
+        ...status,
       },
     }));
-  }, [peerId, stream]);
-
-  // Updating my status
-  useEffect(() => {
-    if (!socket) return;
-    console.log("[UPDATE-USER]->");
-    socket.emit("update-user", peerId, roomid, status);
-  }, [status, socket]);
-  // Updating others status
-  useEffect(() => {
-    if (!socket) return;
-    function handleUpdateOtherUser(peerId, status) {
-      console.log("[UPDATE-OTHER-USER]");
-      setAllStreamsInfo((prev) => ({
-        ...prev,
-        [peerId]: {
-          ...prev[peerId],
-          muted: status.muted,
-          playing: status.playing,
-        },
-      }));
-    }
-
-    socket.on("update-other-user", handleUpdateOtherUser);
-    return () => {
-      socket.off("update-other-user", handleUpdateOtherUser);
-    };
-  }, [status, socket]);
-
-  const handleSelfDisconnect = () => {
-    socket?.emit("leave-chat", peerId, roomid);
-    router.push("/");
-  };
-  useEffect(() => {
-    if (!socket) return;
-    function handleDisconnection(id) {
-      setAllStreamsInfo((prev) => {
-        let newState = cloneDeep(prev);
-        if (newState[id]) delete newState[id];
-        return { ...newState };
-      });
-    }
-    socket.on("left-chat", handleDisconnection);
-    return () => {
-      socket.off("left-chat", handleDisconnection);
-    };
-  }, [socket, peerId]);
+  }, [peerId, stream, status]);
 
   return (
     <div className="h-screen flex flex-col">
