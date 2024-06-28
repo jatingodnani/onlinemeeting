@@ -7,7 +7,7 @@ const SocketProvider = ({ children }) => {
   const [socket, setsocket] = useState(null);
 
   useEffectStrict(() => {
-    const connection = io("http://52.66.156.23:3001");
+    const connection = io("https://bpxff8fg-3001.inc1.devtunnels.ms/");
     setsocket(connection);
   });
 

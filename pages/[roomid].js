@@ -1,3 +1,4 @@
+"use client";
 import { useContext, useState } from "react";
 import { SocketContext } from "@/context/socketprovider";
 import usePeer from "@/hooks/usePeer";
@@ -25,7 +26,7 @@ const Room = () => {
   // Hooks
   const socket = useContext(SocketContext);
   const { peerHandler, peerId } = usePeer();
-  const { setAllStreamsInfo, myStreamInfo, otherStreamsInfo } =
+  const { allStreamsInfo, setAllStreamsInfo, myStreamInfo, otherStreamsInfo } =
     useStreamsInfo(peerId);
   const { stream } = useMediaStream();
 
@@ -89,6 +90,7 @@ const Room = () => {
             return (
               <Player
                 key={playerId}
+                id={playerId}
                 stream={url}
                 muted={muted}
                 playing={playing}

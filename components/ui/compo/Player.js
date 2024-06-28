@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { MicOff, Speaker, VideoOff } from "lucide-react";
 import React from "react";
 import ReactPlayer from "react-player";
-function Player({ stream, muted, playing, isActive, className }) {
+function Player({ stream, muted, playing, isActive, className, id }) {
   return (
     <div
       className={cn("relative overflow-hidden bg-black", {

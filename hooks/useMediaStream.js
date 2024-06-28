@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import useEffectStrict from "./useEffectStrict";
 
 function useMediaStream() {

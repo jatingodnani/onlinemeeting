@@ -11,12 +11,12 @@ export default function useEventPeerCall(
     peerHandler.on("call", (call) => {
       const { peer: callid, metadata } = call;
       call.answer(stream);
-      call.on("stream", () => {
+      call.on("stream", (incomingStreamUrl) => {
         console.log("Someone called me with id", callid, metadata);
         setAllStreamsInfo((prev) => ({
           ...prev,
           [callid]: {
-            url: stream,
+            url: incomingStreamUrl,
             muted: metadata?.muted ?? false,
             playing: metadata?.playing ?? false,
           },
