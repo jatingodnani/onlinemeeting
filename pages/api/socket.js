@@ -17,12 +17,11 @@ const removeFromRoom = (id) => {
 };
 const SocketHandler = (req, res) => {
   if (res.socket.server.io) {
-    res.status(200).json({
-      success: true,
-      message: "Socket is already running",
-      socket: `:${SOCKET_PORT}`,
-    });
-    return;
+    console.log('Socket is already running')
+  } else {
+    console.log('Socket is initializing')
+    const io = new Server(res.socket.server)
+    res.socket.server.io = io
   }
   console.log("[SOCKET INITIALIZING 🟡]");
 
