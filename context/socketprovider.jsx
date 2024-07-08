@@ -7,7 +7,8 @@ const SocketProvider = ({ children }) => {
   const [socket, setsocket] = useState(null);
 
   useEffectStrict(() => {
-    const connection = io("https://bpxff8fg-3001.inc1.devtunnels.ms/");
+    // const connection = io("https://bpxff8fg-3001.inc1.devtunnels.ms/");
+    const connection = io("http://localhost:3001/");
     setsocket(connection);
   });
 

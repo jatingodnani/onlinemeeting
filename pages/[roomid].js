@@ -62,18 +62,18 @@ const Room = () => {
   }, [peerId, stream, status]);
 
   return (
-    <div className="h-screen flex flex-col">
-      <div className="p-2">
+    <div className="h-screen flex flex-col bg-gray-800">
+      <div className="p-2 fixed top-4 left-4 z-10">
         <Link
           href={`/`}
           type="button"
-          className="hover:bg-gray-300 rounded-full transition-colors bg-gray-200 p-2"
+          className="hover:bg-gray-900 rounded-full transition-colors bg-gray-950 text-white p-2"
         >
           <ArrowLeft />
         </Link>
       </div>
-      <div className="flex flex-col flex-grow gap-4">
-        <div className="flex w-full h-96 items-center justify-center">
+      <div className="flex flex-col flex-grow gap-4 py-20">
+        <div className="flex w-full h-96 items-center justify-center flex-1 p-4">
           {myStreamInfo && (
             <Player
               isActive={true}
@@ -84,7 +84,7 @@ const Room = () => {
             />
           )}
         </div>
-        <div className="flex overflow-x-auto w-full justify-center gap-4 h-32">
+        <div className="flex overflow-x-auto w-full justify-center gap-4 h-40 py-4">
           {Object.keys(otherStreamsInfo).map((playerId) => {
             const { url, muted, playing } = otherStreamsInfo[playerId];
             return (

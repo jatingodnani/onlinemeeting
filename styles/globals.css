@@ -74,3 +74,24 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+
+/* custom scrollbar */
+::-webkit-scrollbar {
+  width: 0.5rem;
+  height: 0.3rem;
+}
+
+::-webkit-scrollbar-track {
+  background-color: rgba(69, 69, 69, 0.233);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgb(91, 91, 91);
+  border-radius: 1rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(108, 108, 108);
+}

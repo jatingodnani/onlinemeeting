@@ -21,6 +21,7 @@ const io = new Server(SOCKET_PORT, {
     origin: "*",
   },
 });
+console.log("[SOCKET INITIALIZING 🟡]");
 // Connection
 io.on("connection", (socket) => {
   console.log("[CONNECTION]");
